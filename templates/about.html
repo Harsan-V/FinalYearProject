@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+
+{% block title %}About Us - Virtual Legal Assistant{% endblock %}
+
+{% block extra_css %}
+<style>
+    .about-page {
+        padding: 4rem 2rem;
+    }
+
+    .about-hero {
+        max-width: 1200px;
+        margin: 0 auto 4rem;
+        text-align: center;
+    }
+
+    .about-hero h1 {
+        font-size: 3rem;
+        color: var(--text-dark);
+        margin-bottom: 1rem;
+    }
+
+    .about-hero p {
+        font-size: 1.2rem;
+        color: var(--text-light);
+        max-width: 800px;
+        margin: 0 auto;
+        line-height: 1.8;
+    }
+
+    .about-section {
+        max-width: 1200px;
+        margin: 0 auto 4rem;
+        background: white;
+        padding: 3rem;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    .about-section h2 {
+        font-size: 2rem;
+        color: var(--text-dark);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .about-section h2 i {
+        color: var(--primary-color);
+    }
+
+    .about-section p {
+        color: var(--text-light);
+        line-height: 1.8;
+        font-size: 1.05rem;
+        margin-bottom: 1rem;
+    }
+
+    .mission-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .mission-card {
+        background: var(--bg-gray);
+        padding: 2rem;
+        border-radius: 12px;
+        text-align: center;
+    }
+
+    .mission-icon {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(135deg, var(--primary-light), var(--secondary-color));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: white;
+        margin: 0 auto 1.5rem;
+    }
+
+    .mission-card h3 {
+        font-size: 1.3rem;
+        color: var(--text-dark);
+        margin-bottom: 0.75rem;
+    }
+
+    .mission-card p {
+        color: var(--text-light);
+        font-size: 1rem;
+    }
+
+    .team-section {
+        background: var(--bg-gray);
+        padding: 4rem 2rem;
+        margin-top: 4rem;
+    }
+
+    .team-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        text-align: center;
+    }
+
+    .team-content h2 {
+        font-size: 2.5rem;
+        color: var(--text-dark);
+        margin-bottom: 1rem;
+    }
+
+    .team-content p {
+        color: var(--text-light);
+        font-size: 1.1rem;
+        margin-bottom: 3rem;
+    }
+
+    .values-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .value-item {
+        text-align: center;
+    }
+
+    .value-item i {
+        font-size: 3rem;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+    }
+
+    .value-item h3 {
+        font-size: 1.3rem;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .value-item p {
+        color: var(--text-light);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="about-page">
+    <div class="about-hero">
+        <h1>About LegalAssist</h1>
+        <p>We're on a mission to make legal assistance accessible, affordable, and efficient for everyone through the power of artificial intelligence and human expertise.</p>
+    </div>
+
+    <div class="about-section">
+        <h2><i class="fas fa-lightbulb"></i> Our Vision</h2>
+        <p>LegalAssist was founded on the belief that everyone deserves access to quality legal guidance, regardless of their financial situation or location. We combine cutting-edge AI technology with a network of verified legal professionals to bridge the gap between those who need legal help and those who can provide it.</p>
+        <p>Our platform uses advanced artificial intelligence to provide instant legal guidance, helping users understand their legal issues before connecting them with the right legal professional. This two-tier approach ensures that users get both immediate assistance and expert human guidance when they need it most.</p>
+    </div>
+
+    <div class="about-section">
+        <h2><i class="fas fa-bullseye"></i> Our Mission</h2>
+        <div class="mission-grid">
+            <div class="mission-card">
+                <div class="mission-icon">
+                    <i class="fas fa-universal-access"></i>
+                </div>
+                <h3>Accessibility</h3>
+                <p>Making legal assistance available 24/7 to anyone with an internet connection</p>
+            </div>
+            <div class="mission-card">
+                <div class="mission-icon">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <h3>Affordability</h3>
+                <p>Reducing legal costs through AI assistance and transparent pricing</p>
+            </div>
+            <div class="mission-card">
+                <div class="mission-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Quality</h3>
+                <p>Connecting users with verified, experienced legal professionals</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="about-section">
+        <h2><i class="fas fa-cog"></i> How It Works</h2>
+        <p><strong>AI-Powered Assistance:</strong> Our intelligent chatbot uses natural language processing to understand your legal issue. It asks relevant questions to gather all necessary information and provides preliminary guidance based on legal databases and case law.</p>
+        <p><strong>Smart Matching:</strong> Based on your conversation with the AI, we automatically categorize your legal issue and recommend lawyers who specialize in that specific area of law.</p>
+        <p><strong>Direct Connection:</strong> Once you find the right lawyer, you can book a consultation directly through our platform. After the lawyer accepts your appointment, you can communicate securely through our encrypted chat system.</p>
+        <p><strong>Complete Privacy:</strong> All conversations are protected with industry-standard encryption, and we never share your personal information without your explicit consent.</p>
+    </div>
+
+    <div class="team-section">
+        <div class="team-content">
+            <h2>Our Values</h2>
+            <p>The principles that guide everything we do</p>
+            
+            <div class="values-grid">
+                <div class="value-item">
+                    <i class="fas fa-handshake"></i>
+                    <h3>Trust</h3>
+                    <p>Building trust through transparency and verified professionals</p>
+                </div>
+                <div class="value-item">
+                    <i class="fas fa-rocket"></i>
+                    <h3>Innovation</h3>
+                    <p>Leveraging technology to improve legal services</p>
+                </div>
+                <div class="value-item">
+                    <i class="fas fa-heart"></i>
+                    <h3>Empathy</h3>
+                    <p>Understanding that legal issues are often stressful and personal</p>
+                </div>
+                <div class="value-item">
+                    <i class="fas fa-balance-scale"></i>
+                    <h3>Justice</h3>
+                    <p>Committed to equal access to legal resources</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="about-section" style="text-align: center;">
+        <h2 style="justify-content: center;"><i class="fas fa-users"></i> Join Our Community</h2>
+        <p>Whether you're looking for legal help or you're a legal professional wanting to connect with clients, LegalAssist is here for you.</p>
+        <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
+            <a href="{{ url_for('register') }}" class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1.1rem;">
+                <i class="fas fa-user-plus"></i> Get Started
+            </a>
+            <a href="{{ url_for('lawyer_register') }}" class="btn btn-secondary" style="padding: 1rem 2rem; font-size: 1.1rem;">
+                <i class="fas fa-user-tie"></i> Join as Lawyer
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

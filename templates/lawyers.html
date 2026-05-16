@@ -1,0 +1,352 @@
+{% extends "base.html" %}
+
+{% block title %}Find Lawyers - Virtual Legal Assistant{% endblock %}
+
+{% block extra_css %}
+<style>
+    .lawyers-page {
+        padding: 3rem 2rem;
+        background: var(--bg-gray);
+        min-height: calc(100vh - 300px);
+    }
+
+    .page-header {
+        max-width: 1400px;
+        margin: 0 auto 2rem;
+        text-align: center;
+    }
+
+    .page-header h1 {
+        font-size: 2.5rem;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .page-header p {
+        color: var(--text-light);
+        font-size: 1.1rem;
+    }
+
+    .filters-section {
+        max-width: 1400px;
+        margin: 0 auto 2rem;
+        background: white;
+        padding: 1.5rem;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    .filters-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr auto;
+        gap: 1rem;
+        align-items: end;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .filter-group label {
+        margin-bottom: 0.5rem;
+        color: var(--text-dark);
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    .filter-group input,
+    .filter-group select {
+        padding: 0.75rem 1rem;
+        border: 2px solid var(--border-color);
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .filter-group input:focus,
+    .filter-group select:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+    }
+
+    .filter-btn {
+        padding: 0.75rem 2rem;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .filter-btn:hover {
+        background: var(--primary-dark);
+    }
+
+    .lawyers-grid {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 2rem;
+    }
+
+    .lawyer-card {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .lawyer-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    }
+
+    .lawyer-image {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+        background: linear-gradient(135deg, var(--primary-light), var(--secondary-color));
+    }
+
+    .lawyer-content {
+        padding: 1.5rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .lawyer-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 1rem;
+    }
+
+    .lawyer-name {
+        font-size: 1.4rem;
+        color: var(--text-dark);
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+
+    .lawyer-rating {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        background: #fef3c7;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-weight: 600;
+        color: #92400e;
+        font-size: 0.9rem;
+    }
+
+    .lawyer-category {
+        display: inline-block;
+        background: var(--primary-color);
+        color: white;
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .lawyer-info {
+        margin-bottom: 1rem;
+        flex: 1;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+        color: var(--text-light);
+        font-size: 0.95rem;
+    }
+
+    .info-item i {
+        color: var(--primary-color);
+        width: 20px;
+    }
+
+    .lawyer-description {
+        color: var(--text-light);
+        line-height: 1.6;
+        margin-bottom: 1rem;
+        font-size: 0.95rem;
+    }
+
+    .lawyer-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 1rem;
+        border-top: 2px solid var(--border-color);
+    }
+
+    .price-tag {
+        font-size: 1.5rem;
+        color: var(--primary-color);
+        font-weight: 700;
+    }
+
+    .price-tag span {
+        font-size: 0.9rem;
+        color: var(--text-light);
+        font-weight: 400;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 16px;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: var(--text-light);
+        margin-bottom: 1rem;
+    }
+
+    .empty-state h3 {
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+        color: var(--text-light);
+    }
+
+    @media (max-width: 968px) {
+        .filters-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .lawyers-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="lawyers-page">
+    <div class="page-header">
+        <h1>Find Expert Legal Professionals</h1>
+        <p>Browse verified lawyers across multiple practice areas</p>
+    </div>
+
+    <div class="filters-section">
+        <form method="GET" action="{{ url_for('lawyers') }}">
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label for="search">Search</label>
+                    <input type="text" id="search" name="search" placeholder="Search by name or location..." value="{{ request.args.get('search', '') }}">
+                </div>
+                
+                <div class="filter-group">
+                    <label for="category">Category</label>
+                    <select id="category" name="category">
+                        <option value="">All Categories</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat }}" {% if request.args.get('category') == cat %}selected{% endif %}>
+                            {{ cat|title }} Law
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="sort">Sort By</label>
+                    <select id="sort" name="sort">
+                        <option value="rating" {% if request.args.get('sort') == 'rating' %}selected{% endif %}>Highest Rated</option>
+                        <option value="experience" {% if request.args.get('sort') == 'experience' %}selected{% endif %}>Most Experienced</option>
+                        <option value="price_low" {% if request.args.get('sort') == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                        <option value="price_high" {% if request.args.get('sort') == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="filter-btn">
+                    <i class="fas fa-filter"></i> Apply
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {% if lawyers %}
+    <div class="lawyers-grid">
+        {% for lawyer in lawyers %}
+        <div class="lawyer-card">
+            <img src="{{ url_for('static', filename='uploads/' + lawyer.image) }}" alt="{{ lawyer.name }}" class="lawyer-image" onerror="this.style.display='none'">
+            
+            <div class="lawyer-content">
+                <div class="lawyer-header">
+                    <div>
+                        <h3 class="lawyer-name">{{ lawyer.name }}</h3>
+                        <span class="lawyer-category">
+                            <i class="fas fa-briefcase"></i> {{ lawyer.category|title }} Law
+                        </span>
+                    </div>
+                    <div class="lawyer-rating" style="background: {{ lawyer.rating|rating_color }}20; color: {{ lawyer.rating|rating_color }};">
+                        <i class="fas fa-star"></i> 
+                        {% if lawyer.rating > 0 %}
+                            {{ lawyer.rating }}
+                        {% else %}
+                            New
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="lawyer-info">
+                    <div class="info-item">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span>{{ lawyer.experience }} years experience</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>{{ lawyer.location }}</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-phone"></i>
+                        <span>{{ lawyer.phone }}</span>
+                    </div>
+                    
+                    {% if lawyer.description %}
+                    <p class="lawyer-description">{{ lawyer.description[:150] }}{% if lawyer.description|length > 150 %}...{% endif %}</p>
+                    {% endif %}
+                </div>
+
+                <div class="lawyer-footer">
+                    <div class="price-tag">
+                        ${{ lawyer.charge_per_hour }}<span>/hour</span>
+                    </div>
+                    <a href="{{ url_for('lawyer_profile', lawyer_id=lawyer.id) }}" class="btn btn-primary">
+                        View Profile <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-search"></i>
+        <h3>No lawyers found</h3>
+        <p>Try adjusting your search filters to find more lawyers</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

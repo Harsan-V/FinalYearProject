@@ -1,0 +1,592 @@
+{% extends "base.html" %}
+
+{% block title %}AI Legal Assistant - Virtual Legal Assistant{% endblock %}
+
+{% block extra_css %}
+<style>
+    .chat-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+        height: calc(100vh - 200px);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chat-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        padding: 1.5rem 2rem;
+        border-radius: 16px 16px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .chat-header h2 {
+        font-size: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .chat-disclaimer {
+        background: #fef3c7;
+        color: #92400e;
+        padding: 1rem 2rem;
+        border-left: 4px solid var(--warning);
+        font-size: 0.9rem;
+    }
+
+    .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 2rem;
+        background: white;
+        border-left: 1px solid var(--border-color);
+        border-right: 1px solid var(--border-color);
+    }
+
+    .message {
+        margin-bottom: 1.5rem;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .message-user {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .message-ai {
+        display: flex;
+        justify-content: flex-start;
+    }
+
+    .message-content {
+        max-width: 70%;
+        padding: 1rem 1.5rem;
+        border-radius: 16px;
+        position: relative;
+    }
+
+    .message-user .message-content {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        border-bottom-right-radius: 4px;
+    }
+
+    .message-ai .message-content {
+        background: var(--bg-gray);
+        color: var(--text-dark);
+        border-bottom-left-radius: 4px;
+    }
+
+    .message-sender {
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .message-ai .message-sender {
+        color: var(--primary-color);
+    }
+
+    .message-text {
+        line-height: 1.6;
+        white-space: pre-wrap;
+    }
+
+    .suggested-lawyers {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: white;
+        border-radius: 12px;
+        border: 2px solid var(--primary-color);
+    }
+
+    .suggested-lawyers h4 {
+        color: var(--primary-color);
+        margin-bottom: 0.75rem;
+        font-size: 1rem;
+    }
+
+    .lawyer-suggestion {
+        background: var(--bg-gray);
+        padding: 0.75rem;
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .lawyer-suggestion:last-child {
+        margin-bottom: 0;
+    }
+
+    .lawyer-suggestion-info h5 {
+        color: var(--text-dark);
+        margin-bottom: 0.25rem;
+        font-size: 0.95rem;
+    }
+
+    .lawyer-suggestion-info p {
+        color: var(--text-light);
+        font-size: 0.85rem;
+    }
+
+    .lawyer-suggestion .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .chat-input-container {
+        background: white;
+        padding: 1.5rem 2rem;
+        border-radius: 0 0 16px 16px;
+        border: 1px solid var(--border-color);
+        border-top: none;
+    }
+
+    .chat-input-form {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .chat-input {
+        flex: 1;
+        padding: 1rem 1.5rem;
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        font-size: 1rem;
+        resize: none;
+        font-family: inherit;
+        transition: all 0.3s ease;
+    }
+
+    .chat-input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+    }
+
+    .chat-send-btn {
+        padding: 1rem 2rem;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .chat-send-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(30, 64, 175, 0.3);
+    }
+
+    .chat-send-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .voice-btn {
+        padding: 1rem;
+        background: var(--secondary-color);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        min-width: 60px;
+        justify-content: center;
+    }
+
+    .voice-btn:hover {
+        background: #0284c7;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(14, 165, 233, 0.3);
+    }
+
+    .voice-btn.recording {
+        background: var(--error);
+        animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.7;
+        }
+    }
+
+    .voice-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .typing-indicator {
+        display: none;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-light);
+        font-style: italic;
+        padding: 1rem;
+    }
+
+    .typing-indicator.active {
+        display: flex;
+    }
+
+    .typing-dots {
+        display: flex;
+        gap: 0.25rem;
+    }
+
+    .typing-dots span {
+        width: 8px;
+        height: 8px;
+        background: var(--primary-color);
+        border-radius: 50%;
+        animation: bounce 1.4s infinite ease-in-out;
+    }
+
+    .typing-dots span:nth-child(1) {
+        animation-delay: -0.32s;
+    }
+
+    .typing-dots span:nth-child(2) {
+        animation-delay: -0.16s;
+    }
+
+    @keyframes bounce {
+
+        0%,
+        80%,
+        100% {
+            transform: scale(0);
+        }
+
+        40% {
+            transform: scale(1);
+        }
+    }
+
+    .clear-chat-btn {
+        background: transparent;
+        color: white;
+        border: 2px solid white;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .clear-chat-btn:hover {
+        background: white;
+        color: var(--primary-color);
+    }
+
+    @media (max-width: 768px) {
+        .chat-container {
+            padding: 1rem;
+        }
+
+        .message-content {
+            max-width: 85%;
+        }
+
+        .chat-input-form {
+            flex-direction: column;
+        }
+
+        .chat-send-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-container">
+    <div class="chat-header">
+        <h2>
+            <i class="fas fa-robot"></i>
+            AI Legal Assistant
+        </h2>
+        <button class="clear-chat-btn" onclick="clearChat()">
+            <i class="fas fa-trash"></i> Clear Chat
+        </button>
+    </div>
+
+    <div class="chat-disclaimer">
+        <i class="fas fa-info-circle"></i>
+        <strong>Disclaimer:</strong> This AI assistant provides general legal information only. For specific legal
+        advice, please consult with a licensed attorney.
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+        <div class="message message-ai">
+            <div class="message-content">
+                <div class="message-sender">
+                    <i class="fas fa-robot"></i>
+                    AI Assistant
+                </div>
+                <div class="message-text">Hello! I'm your AI legal assistant. I'm here to help you understand your legal
+                    situation. Please describe your legal issue, and I'll ask relevant questions to better understand
+                    your case and provide appropriate guidance.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="typing-indicator" id="typingIndicator">
+        <i class="fas fa-robot"></i>
+        AI is thinking
+        <div class="typing-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+
+    <div class="chat-input-container">
+        <form class="chat-input-form" id="chatForm">
+            <textarea class="chat-input" id="messageInput" placeholder="Describe your legal issue..." rows="2"
+                required></textarea>
+            <button type="button" class="voice-btn" id="voiceBtn" title="Voice input">
+                <i class="fas fa-microphone"></i>
+            </button>
+            <button type="submit" class="chat-send-btn" id="sendBtn">
+                <i class="fas fa-paper-plane"></i>
+                Send
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const chatMessages = document.getElementById('chatMessages');
+    const chatForm = document.getElementById('chatForm');
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const voiceBtn = document.getElementById('voiceBtn');
+    const typingIndicator = document.getElementById('typingIndicator');
+
+    let isRecording = false;
+    let recognition = null;
+
+    // Initialize Speech Recognition
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+
+        recognition.onstart = function () {
+            isRecording = true;
+            voiceBtn.classList.add('recording');
+            voiceBtn.innerHTML = '<i class="fas fa-stop"></i>';
+            voiceBtn.title = 'Stop recording';
+        };
+
+        recognition.onresult = function (event) {
+            const transcript = event.results[0][0].transcript;
+            messageInput.value = transcript;
+            messageInput.focus();
+        };
+
+        recognition.onerror = function (event) {
+            console.error('Speech recognition error:', event.error);
+            alert('Voice input error: ' + event.error);
+            resetVoiceButton();
+        };
+
+        recognition.onend = function () {
+            resetVoiceButton();
+        };
+
+        voiceBtn.addEventListener('click', function () {
+            if (isRecording) {
+                recognition.stop();
+            } else {
+                recognition.start();
+            }
+        });
+    } else {
+        voiceBtn.disabled = true;
+        voiceBtn.title = 'Voice input not supported in this browser';
+        voiceBtn.style.opacity = '0.3';
+    }
+
+    function resetVoiceButton() {
+        isRecording = false;
+        voiceBtn.classList.remove('recording');
+        voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+        voiceBtn.title = 'Voice input';
+    }
+
+    // Load chat history
+    async function loadChatHistory() {
+        try {
+            const response = await fetch('/api/chat/history');
+            const history = await response.json();
+
+            history.forEach(msg => {
+                addMessage(msg.message, 'user');
+                addMessage(msg.response, 'ai');
+            });
+
+            scrollToBottom();
+        } catch (error) {
+            console.error('Error loading chat history:', error);
+        }
+    }
+
+    // Add message to chat
+    function addMessage(text, sender, suggestedLawyers = null) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message message-${sender}`;
+
+        let content = `
+            <div class="message-content">
+                <div class="message-sender">
+                    <i class="fas fa-${sender === 'user' ? 'user' : 'robot'}"></i>
+                    ${sender === 'user' ? 'You' : 'AI Assistant'}
+                </div>
+                <div class="message-text">${text}</div>
+        `;
+
+        if (suggestedLawyers && suggestedLawyers.length > 0) {
+            content += `
+                <div class="suggested-lawyers">
+                    <h4><i class="fas fa-user-tie"></i> Recommended Lawyers</h4>
+            `;
+            suggestedLawyers.forEach(lawyer => {
+                content += `
+                    <div class="lawyer-suggestion">
+                        <div class="lawyer-suggestion-info">
+                            <h5>${lawyer.name}</h5>
+                            <p>
+                                <i class="fas fa-briefcase"></i> ${lawyer.category} • 
+                                <i class="fas fa-star"></i> ${lawyer.rating} • 
+                                $${lawyer.charge_per_hour}/hr • 
+                                ${lawyer.experience} yrs exp
+                            </p>
+                        </div>
+                        <a href="/lawyer/${lawyer.id}" class="btn btn-primary">View Profile</a>
+                    </div>
+                `;
+            });
+            content += `</div>`;
+        }
+
+        content += `</div>`;
+        messageDiv.innerHTML = content;
+        chatMessages.appendChild(messageDiv);
+        scrollToBottom();
+    }
+
+    // Send message
+    chatForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const message = messageInput.value.trim();
+        if (!message) return;
+
+        // Add user message
+        addMessage(message, 'user');
+        messageInput.value = '';
+
+        // Disable input
+        sendBtn.disabled = true;
+        messageInput.disabled = true;
+        typingIndicator.classList.add('active');
+
+        try {
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message })
+            });
+
+            const data = await response.json();
+
+            // Add AI response
+            addMessage(data.response, 'ai', data.suggested_lawyers);
+
+        } catch (error) {
+            console.error('Error:', error);
+            addMessage('Sorry, I encountered an error. Please try again.', 'ai');
+        } finally {
+            sendBtn.disabled = false;
+            messageInput.disabled = false;
+            typingIndicator.classList.remove('active');
+            messageInput.focus();
+        }
+    });
+
+    function scrollToBottom() {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function clearChat() {
+        if (confirm('Are you sure you want to clear the chat history?')) {
+            chatMessages.innerHTML = `
+                <div class="message message-ai">
+                    <div class="message-content">
+                        <div class="message-sender">
+                            <i class="fas fa-robot"></i>
+                            AI Assistant
+                        </div>
+                        <div class="message-text">Hello! I'm your AI legal assistant. I'm here to help you understand your legal situation. Please describe your legal issue, and I'll ask relevant questions to better understand your case and provide appropriate guidance.</div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    // Auto-resize textarea
+    messageInput.addEventListener('input', function () {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+    });
+
+    // Load history on page load
+    loadChatHistory();
+</script>
+{% endblock %}

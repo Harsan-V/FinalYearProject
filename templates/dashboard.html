@@ -1,0 +1,331 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Virtual Legal Assistant{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard {
+        padding: 3rem 2rem;
+        background: var(--bg-gray);
+        min-height: calc(100vh - 300px);
+    }
+
+    .dashboard-header {
+        max-width: 1400px;
+        margin: 0 auto 3rem;
+    }
+
+    .dashboard-header h1 {
+        font-size: 2.5rem;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .dashboard-header p {
+        color: var(--text-light);
+        font-size: 1.1rem;
+    }
+
+    .dashboard-grid {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .dashboard-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+    }
+
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    }
+
+    .card-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--primary-light), var(--secondary-color));
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        color: white;
+        margin-bottom: 1rem;
+    }
+
+    .card-title {
+        font-size: 1.25rem;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    .card-description {
+        color: var(--text-light);
+        margin-bottom: 1.5rem;
+    }
+
+    .appointments-section {
+        max-width: 1400px;
+        margin: 0 auto;
+        background: white;
+        padding: 2rem;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    .appointments-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    .appointments-header h2 {
+        font-size: 1.75rem;
+        color: var(--text-dark);
+    }
+
+    .appointment-card {
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .appointment-card:hover {
+        border-color: var(--primary-color);
+        box-shadow: 0 4px 15px rgba(30, 64, 175, 0.1);
+    }
+
+    .appointment-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .lawyer-info {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .lawyer-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+
+    .lawyer-details h3 {
+        font-size: 1.1rem;
+        color: var(--text-dark);
+        margin-bottom: 0.25rem;
+    }
+
+    .lawyer-details p {
+        color: var(--text-light);
+        font-size: 0.9rem;
+    }
+
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .status-pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .status-accepted {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .status-rejected {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .appointment-description {
+        color: var(--text-dark);
+        line-height: 1.6;
+        margin-bottom: 1rem;
+    }
+
+    .appointment-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .appointment-date {
+        color: var(--text-light);
+        font-size: 0.9rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: var(--text-light);
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-header h1 {
+            font-size: 2rem;
+        }
+
+        .appointment-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .appointment-footer {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <div class="dashboard-header">
+        <h1>Welcome, {{ user.username }}! 👋</h1>
+        <p>Manage your legal consultations and access AI assistance</p>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="dashboard-card">
+            <div class="card-icon">
+                <i class="fas fa-robot"></i>
+            </div>
+            <h3 class="card-title">AI Legal Assistant</h3>
+            <p class="card-description">Get instant legal guidance from our intelligent chatbot</p>
+            <a href="{{ url_for('chat') }}" class="btn btn-primary">
+                <i class="fas fa-comments"></i> Start Chat
+            </a>
+        </div>
+
+        <div class="dashboard-card">
+            <div class="card-icon">
+                <i class="fas fa-user-tie"></i>
+            </div>
+            <h3 class="card-title">Find Lawyers</h3>
+            <p class="card-description">Browse and connect with verified legal professionals</p>
+            <a href="{{ url_for('lawyers') }}" class="btn btn-primary">
+                <i class="fas fa-search"></i> Browse Lawyers
+            </a>
+        </div>
+
+        <div class="dashboard-card">
+            <div class="card-icon">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <h3 class="card-title">Appointments</h3>
+            <p class="card-description">View and manage your consultation appointments</p>
+            <div style="margin-top: 1rem; font-size: 2rem; font-weight: 700; color: var(--primary-color);">
+                {{ appointments|length }}
+            </div>
+        </div>
+    </div>
+
+    <div class="appointments-section">
+        <div class="appointments-header">
+            <h2><i class="fas fa-calendar-alt"></i> My Appointments</h2>
+        </div>
+
+        {% if appointments %}
+            {% for appointment in appointments %}
+            <div class="appointment-card">
+                <div class="appointment-header">
+                    <div class="lawyer-info">
+                        <div class="lawyer-avatar">
+                            {{ appointment.lawyer.name[0] }}
+                        </div>
+                        <div class="lawyer-details">
+                            <h3>{{ appointment.lawyer.name }}</h3>
+                            <p>
+                                <i class="fas fa-briefcase"></i> {{ appointment.lawyer.category|title }} Law
+                                <span style="margin: 0 0.5rem;">•</span>
+                                <i class="fas fa-star"></i> {{ appointment.lawyer.rating }}
+                            </p>
+                        </div>
+                    </div>
+                    <span class="status-badge status-{{ appointment.status }}">
+                        {{ appointment.status }}
+                    </span>
+                </div>
+
+                <div class="appointment-description">
+                    <strong>Description:</strong> {{ appointment.description }}
+                </div>
+
+                <div class="appointment-footer">
+                    <div class="appointment-date">
+                        <i class="fas fa-clock"></i> 
+                        Submitted on {{ appointment.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+                    </div>
+                    {% if appointment.status == 'accepted' %}
+                        <div style="display: flex; gap: 0.75rem;">
+                            <a href="{{ url_for('user_lawyer_chat', appointment_id=appointment.id) }}" class="btn btn-secondary">
+                                <i class="fas fa-comments"></i> Chat with Lawyer
+                            </a>
+                            <a href="{{ url_for('rate_lawyer', appointment_id=appointment.id) }}" class="btn btn-primary" style="background: var(--warning);">
+                                <i class="fas fa-star"></i> Rate Lawyer
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-calendar-times"></i>
+                <h3>No appointments yet</h3>
+                <p>Start by chatting with our AI assistant or browse lawyers to book your first consultation</p>
+                <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center;">
+                    <a href="{{ url_for('chat') }}" class="btn btn-primary">
+                        <i class="fas fa-robot"></i> AI Chat
+                    </a>
+                    <a href="{{ url_for('lawyers') }}" class="btn btn-secondary">
+                        <i class="fas fa-user-tie"></i> Find Lawyers
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

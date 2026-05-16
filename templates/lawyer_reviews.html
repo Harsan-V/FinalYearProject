@@ -1,0 +1,349 @@
+{% extends "base.html" %}
+
+{% block title %}Reviews for {{ lawyer.name }} - Virtual Legal Assistant{% endblock %}
+
+{% block extra_css %}
+<style>
+    .reviews-page {
+        padding: 3rem 2rem;
+        background: var(--bg-gray);
+        min-height: calc(100vh - 300px);
+    }
+
+    .reviews-container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .reviews-header {
+        background: white;
+        border-radius: 16px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        text-align: center;
+    }
+
+    .lawyer-info {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+
+    .lawyer-avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid var(--primary-color);
+    }
+
+    .lawyer-details h1 {
+        font-size: 2rem;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .lawyer-details p {
+        color: var(--text-light);
+        font-size: 1.1rem;
+    }
+
+    .rating-summary {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 2rem;
+        padding: 2rem;
+        background: var(--bg-gray);
+        border-radius: 12px;
+    }
+
+    .overall-rating {
+        text-align: center;
+    }
+
+    .rating-number {
+        font-size: 4rem;
+        font-weight: 700;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+
+    .rating-stars {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .rating-stars i {
+        margin: 0 0.1rem;
+    }
+
+    .star-filled {
+        color: #fbbf24;
+    }
+
+    .star-empty {
+        color: #e5e7eb;
+    }
+
+    .rating-count {
+        color: var(--text-light);
+        font-size: 1rem;
+    }
+
+    .rating-bars {
+        flex: 1;
+        max-width: 300px;
+    }
+
+    .rating-bar {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .bar-label {
+        min-width: 50px;
+        font-size: 0.9rem;
+        color: var(--text-light);
+    }
+
+    .bar-container {
+        flex: 1;
+        height: 8px;
+        background: #e5e7eb;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .bar-fill {
+        height: 100%;
+        background: #fbbf24;
+        transition: width 0.3s ease;
+    }
+
+    .bar-count {
+        min-width: 30px;
+        text-align: right;
+        font-size: 0.9rem;
+        color: var(--text-light);
+    }
+
+    .reviews-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .review-card {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    .reviewer-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .reviewer-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+
+    .reviewer-details h3 {
+        font-size: 1.1rem;
+        color: var(--text-dark);
+        margin-bottom: 0.25rem;
+    }
+
+    .review-stars {
+        font-size: 1rem;
+    }
+
+    .review-date {
+        color: var(--text-light);
+        font-size: 0.9rem;
+    }
+
+    .review-text {
+        color: var(--text-dark);
+        line-height: 1.8;
+        font-size: 1.05rem;
+    }
+
+    .no-reviews {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    .no-reviews i {
+        font-size: 4rem;
+        color: var(--text-light);
+        margin-bottom: 1rem;
+    }
+
+    .no-reviews h3 {
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .no-reviews p {
+        color: var(--text-light);
+    }
+
+    @media (max-width: 768px) {
+        .lawyer-info {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .rating-summary {
+            flex-direction: column;
+        }
+
+        .review-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="reviews-page">
+    <div class="reviews-container">
+        <div class="reviews-header">
+            <div class="lawyer-info">
+                <img src="{{ url_for('static', filename='uploads/' + lawyer.image) }}" 
+                     alt="{{ lawyer.name }}" 
+                     class="lawyer-avatar"
+                     onerror="this.src='{{ url_for('static', filename='uploads/default_lawyer.png') }}'">
+                <div class="lawyer-details">
+                    <h1>{{ lawyer.name }}</h1>
+                    <p>
+                        <i class="fas fa-briefcase"></i> {{ lawyer.category|title }} Law Specialist
+                    </p>
+                </div>
+            </div>
+
+            <div class="rating-summary">
+                <div class="overall-rating">
+                    <div class="rating-number" style="color: {{ lawyer.rating|rating_color }};">
+                        {% if lawyer.rating > 0 %}{{ lawyer.rating }}{% else %}0.0{% endif %}
+                    </div>
+                    <div class="rating-stars">
+                        {% set rating = lawyer.rating %}
+                        {% for i in range(1, 6) %}
+                            {% if i <= rating %}
+                                <i class="fas fa-star star-filled"></i>
+                            {% elif i - 0.5 <= rating %}
+                                <i class="fas fa-star-half-alt star-filled"></i>
+                            {% else %}
+                                <i class="fas fa-star star-empty"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="rating-count">{{ lawyer.rating_count }} reviews</div>
+                </div>
+
+                {% if lawyer.rating_count > 0 %}
+                <div class="rating-bars">
+                    {% set rating_counts = {5: 0, 4: 0, 3: 0, 2: 0, 1: 0} %}
+                    {% for review in reviews %}
+                        {% set _ = rating_counts.update({review.rating: rating_counts[review.rating] + 1}) %}
+                    {% endfor %}
+                    
+                    {% for star in [5, 4, 3, 2, 1] %}
+                    <div class="rating-bar">
+                        <div class="bar-label">{{ star }} <i class="fas fa-star" style="font-size: 0.7rem; color: #fbbf24;"></i></div>
+                        <div class="bar-container">
+                            <div class="bar-fill" style="width: {{ (rating_counts[star] / lawyer.rating_count * 100) if lawyer.rating_count > 0 else 0 }}%;"></div>
+                        </div>
+                        <div class="bar-count">{{ rating_counts[star] }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="reviews-list">
+            {% if reviews %}
+                {% for review in reviews %}
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="reviewer-info">
+                            <div class="reviewer-avatar">
+                                {{ review.user.username[0]|upper }}
+                            </div>
+                            <div class="reviewer-details">
+                                <h3>{{ review.user.username }}</h3>
+                                <div class="review-stars">
+                                    {% for i in range(1, 6) %}
+                                        {% if i <= review.rating %}
+                                            <i class="fas fa-star star-filled"></i>
+                                        {% else %}
+                                            <i class="fas fa-star star-empty"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="review-date">
+                            <i class="fas fa-clock"></i>
+                            {{ review.created_at.strftime('%B %d, %Y') }}
+                        </div>
+                    </div>
+                    
+                    {% if review.review %}
+                    <div class="review-text">
+                        {{ review.review }}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-reviews">
+                    <i class="fas fa-star"></i>
+                    <h3>No reviews yet</h3>
+                    <p>This lawyer hasn't received any reviews yet. Be the first to share your experience!</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+            <a href="{{ url_for('lawyer_profile', lawyer_id=lawyer.id) }}" class="btn btn-primary">
+                <i class="fas fa-arrow-left"></i> Back to Profile
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

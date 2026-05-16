@@ -1,0 +1,332 @@
+{% extends "base.html" %}
+
+{% block title %}{{ lawyer.name }} - Virtual Legal Assistant{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-page {
+        padding: 3rem 2rem;
+        background: var(--bg-gray);
+        min-height: calc(100vh - 300px);
+    }
+
+    .profile-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .profile-header {
+        background: white;
+        border-radius: 16px;
+        padding: 3rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    .profile-top {
+        display: grid;
+        grid-template-columns: 250px 1fr;
+        gap: 3rem;
+        align-items: start;
+    }
+
+    .profile-image-container {
+        text-align: center;
+    }
+
+    .profile-image {
+        width: 250px;
+        height: 250px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 5px solid var(--primary-color);
+        margin-bottom: 1rem;
+    }
+
+    .profile-rating {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: #fef3c7;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        color: #92400e;
+        font-size: 1.1rem;
+    }
+
+    .profile-info h1 {
+        font-size: 2.5rem;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .profile-category {
+        display: inline-block;
+        background: var(--primary-color);
+        color: white;
+        padding: 0.5rem 1.5rem;
+        border-radius: 20px;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        font-size: 1.1rem;
+    }
+
+    .profile-details {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .detail-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, var(--primary-light), var(--secondary-color));
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.25rem;
+    }
+
+    .detail-content h3 {
+        font-size: 0.9rem;
+        color: var(--text-light);
+        margin-bottom: 0.25rem;
+        font-weight: 500;
+    }
+
+    .detail-content p {
+        font-size: 1.1rem;
+        color: var(--text-dark);
+        font-weight: 600;
+    }
+
+    .profile-description {
+        background: var(--bg-gray);
+        padding: 2rem;
+        border-radius: 12px;
+        margin-top: 2rem;
+    }
+
+    .profile-description h2 {
+        color: var(--text-dark);
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+    }
+
+    .profile-description p {
+        color: var(--text-light);
+        line-height: 1.8;
+        font-size: 1.05rem;
+    }
+
+    .appointment-section {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    .appointment-section h2 {
+        color: var(--text-dark);
+        margin-bottom: 1.5rem;
+        font-size: 1.75rem;
+    }
+
+    .appointment-form {
+        max-width: 600px;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: var(--text-dark);
+        font-weight: 500;
+    }
+
+    .form-group textarea {
+        width: 100%;
+        padding: 1rem;
+        border: 2px solid var(--border-color);
+        border-radius: 10px;
+        font-size: 1rem;
+        font-family: inherit;
+        resize: vertical;
+        min-height: 150px;
+        transition: all 0.3s ease;
+    }
+
+    .form-group textarea:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+    }
+
+    .login-notice {
+        background: #dbeafe;
+        border-left: 4px solid var(--primary-color);
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+    }
+
+    .login-notice p {
+        color: var(--text-dark);
+        margin-bottom: 1rem;
+    }
+
+    @media (max-width: 968px) {
+        .profile-top {
+            grid-template-columns: 1fr;
+            text-align: center;
+        }
+
+        .profile-image {
+            width: 200px;
+            height: 200px;
+        }
+
+        .profile-details {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-page">
+    <div class="profile-container">
+        <div class="profile-header">
+            <div class="profile-top">
+                <div class="profile-image-container">
+                    <img src="{{ url_for('static', filename='uploads/' + lawyer.image) }}" 
+                         alt="{{ lawyer.name }}" 
+                         class="profile-image"
+                         onerror="this.src='{{ url_for('static', filename='uploads/default_lawyer.png') }}'">
+                    <div class="profile-rating" style="background: {{ lawyer.rating|rating_color }}20; color: {{ lawyer.rating|rating_color }}; border: 2px solid {{ lawyer.rating|rating_color }};">
+                        <i class="fas fa-star"></i> 
+                        {% if lawyer.rating > 0 %}
+                            {{ lawyer.rating }} <span style="font-size: 0.9rem; opacity: 0.8;">({{ lawyer.rating_count }} reviews)</span>
+                        {% else %}
+                            <span style="font-size: 0.9rem;">No reviews yet</span>
+                        {% endif %}
+                    </div>
+                    {% if lawyer.rating_count > 0 %}
+                    <a href="{{ url_for('lawyer_reviews', lawyer_id=lawyer.id) }}" style="display: block; margin-top: 0.5rem; color: var(--primary-color); text-decoration: none; font-size: 0.9rem;">
+                        <i class="fas fa-comments"></i> View Reviews
+                    </a>
+                    {% endif %}
+                </div>
+
+                <div class="profile-info">
+                    <h1>{{ lawyer.name }}</h1>
+                    <span class="profile-category">
+                        <i class="fas fa-briefcase"></i> {{ lawyer.category|title }} Law Specialist
+                    </span>
+
+                    <div class="profile-details">
+                        <div class="detail-item">
+                            <div class="detail-icon">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <div class="detail-content">
+                                <h3>Experience</h3>
+                                <p>{{ lawyer.experience }} Years</p>
+                            </div>
+                        </div>
+
+                        <div class="detail-item">
+                            <div class="detail-icon">
+                                <i class="fas fa-dollar-sign"></i>
+                            </div>
+                            <div class="detail-content">
+                                <h3>Consultation Fee</h3>
+                                <p>${{ lawyer.charge_per_hour }}/hour</p>
+                            </div>
+                        </div>
+
+                        <div class="detail-item">
+                            <div class="detail-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div class="detail-content">
+                                <h3>Location</h3>
+                                <p>{{ lawyer.location }}</p>
+                            </div>
+                        </div>
+
+                        <div class="detail-item">
+                            <div class="detail-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="detail-content">
+                                <h3>Contact</h3>
+                                <p>{{ lawyer.phone }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if lawyer.description %}
+                    <div class="profile-description">
+                        <h2>About</h2>
+                        <p>{{ lawyer.description }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="appointment-section">
+            <h2><i class="fas fa-calendar-check"></i> Book Consultation</h2>
+            
+            {% if session.get('user_id') %}
+                <form method="POST" action="{{ url_for('book_appointment', lawyer_id=lawyer.id) }}" class="appointment-form">
+                    <div class="form-group">
+                        <label for="description">Describe your legal issue *</label>
+                        <textarea 
+                            id="description" 
+                            name="description" 
+                            required 
+                            placeholder="Please provide details about your legal situation. This will help the lawyer understand your case better..."
+                        ></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1.1rem;">
+                        <i class="fas fa-paper-plane"></i> Send Appointment Request
+                    </button>
+
+                    <p style="color: var(--text-light); margin-top: 1rem; font-size: 0.9rem;">
+                        <i class="fas fa-info-circle"></i> 
+                        You will be notified via email once the lawyer responds to your request.
+                    </p>
+                </form>
+            {% else %}
+                <div class="login-notice">
+                    <p><i class="fas fa-info-circle"></i> Please login to book an appointment with this lawyer.</p>
+                    <div style="display: flex; gap: 1rem;">
+                        <a href="{{ url_for('login') }}" class="btn btn-primary">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
+                        <a href="{{ url_for('register') }}" class="btn btn-secondary">
+                            <i class="fas fa-user-plus"></i> Sign Up
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

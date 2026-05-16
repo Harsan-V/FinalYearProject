@@ -1,0 +1,602 @@
+{% extends "base.html" %}
+
+{% block title %}Chat with {{ user.username }} - Virtual Legal Assistant{% endblock %}
+
+{% block extra_css %}
+<style>
+    .chat-page {
+        padding: 2rem;
+        background: var(--bg-gray);
+        height: calc(100vh - 200px);
+    }
+
+    .chat-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    .chat-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        padding: 1.5rem 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .client-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: white;
+        color: var(--primary-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+
+    .chat-header-info h2 {
+        font-size: 1.5rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .chat-header-info p {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 2rem;
+        background: #f9fafb;
+    }
+
+    .message {
+        margin-bottom: 1.5rem;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .message-sent {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .message-received {
+        display: flex;
+        justify-content: flex-start;
+    }
+
+    .message-content {
+        max-width: 70%;
+        padding: 1rem 1.5rem;
+        border-radius: 16px;
+    }
+
+    .message-sent .message-content {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        border-bottom-right-radius: 4px;
+    }
+
+    .message-received .message-content {
+        background: white;
+        color: var(--text-dark);
+        border-bottom-left-radius: 4px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .message-sender {
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .message-received .message-sender {
+        color: var(--primary-color);
+    }
+
+    .message-text {
+        line-height: 1.6;
+        white-space: pre-wrap;
+    }
+
+    .message-time {
+        font-size: 0.75rem;
+        margin-top: 0.5rem;
+        opacity: 0.7;
+    }
+
+    .attachments {
+        margin-top: 0.75rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .attachment {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        background: rgba(255,255,255,0.1);
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .message-received .attachment {
+        background: var(--bg-gray);
+    }
+
+    .attachment:hover {
+        background: rgba(255,255,255,0.2);
+    }
+
+    .message-received .attachment:hover {
+        background: #e5e7eb;
+    }
+
+    .attachment-icon {
+        font-size: 1.5rem;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        background: rgba(255,255,255,0.2);
+    }
+
+    .message-received .attachment-icon {
+        background: white;
+        color: var(--primary-color);
+    }
+
+    .attachment-info {
+        flex: 1;
+    }
+
+    .attachment-name {
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .attachment-size {
+        font-size: 0.75rem;
+        opacity: 0.7;
+    }
+
+    .attachment img {
+        max-width: 200px;
+        max-height: 200px;
+        border-radius: 8px;
+        margin-top: 0.5rem;
+    }
+
+    .file-upload-area {
+        display: none;
+        padding: 1rem;
+        background: var(--bg-gray);
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+    }
+
+    .file-upload-area.active {
+        display: block;
+    }
+
+    .selected-files {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+    .selected-file {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        background: white;
+        border-radius: 6px;
+        font-size: 0.9rem;
+    }
+
+    .selected-file i {
+        color: var(--primary-color);
+    }
+
+    .remove-file {
+        cursor: pointer;
+        color: var(--error);
+        margin-left: 0.5rem;
+    }
+
+    .remove-file:hover {
+        opacity: 0.7;
+    }
+
+    .chat-input-container {
+        background: white;
+        padding: 1.5rem 2rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .input-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .action-btn {
+        padding: 0.5rem 1rem;
+        background: var(--bg-gray);
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .action-btn:hover {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+
+    .action-btn.active {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+
+    .chat-input-form {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .chat-input {
+        flex: 1;
+        padding: 1rem 1.5rem;
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        font-size: 1rem;
+        resize: none;
+        font-family: inherit;
+        max-height: 150px;
+        transition: all 0.3s ease;
+    }
+
+    .chat-input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+    }
+
+    .chat-send-btn {
+        padding: 1rem 2rem;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .chat-send-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(30, 64, 175, 0.3);
+    }
+
+    .chat-send-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    @media (max-width: 768px) {
+        .chat-page {
+            padding: 1rem;
+        }
+
+        .message-content {
+            max-width: 85%;
+        }
+
+        .chat-input-form {
+            flex-direction: column;
+        }
+
+        .chat-send-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-page">
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="client-avatar">
+                {{ user.username[0]|upper }}
+            </div>
+            <div class="chat-header-info">
+                <h2>{{ user.username }}</h2>
+                <p><i class="fas fa-envelope"></i> {{ user.email }}</p>
+            </div>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+            <!-- Messages will be loaded here -->
+        </div>
+
+        <div class="chat-input-container">
+            <div class="input-actions">
+                <button type="button" class="action-btn" id="attachBtn">
+                    <i class="fas fa-paperclip"></i> Attach Files
+                </button>
+            </div>
+            
+            <div class="file-upload-area" id="fileUploadArea">
+                <input type="file" id="fileInput" multiple accept="image/*,.pdf,.doc,.docx,.txt,.xls,.xlsx,.csv,.zip,.rar" style="display: none;">
+                <label for="fileInput" style="cursor: pointer; color: var(--primary-color);">
+                    <i class="fas fa-cloud-upload-alt"></i> Click to select files (images, documents)
+                </label>
+                <div class="selected-files" id="selectedFiles"></div>
+            </div>
+            
+            <form class="chat-input-form" id="chatForm">
+                <textarea 
+                    class="chat-input" 
+                    id="messageInput" 
+                    placeholder="Type your message..." 
+                    rows="2"
+                    required
+                ></textarea>
+                <button type="submit" class="chat-send-btn" id="sendBtn">
+                    <i class="fas fa-paper-plane"></i>
+                    Send
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const appointmentId = {{ appointment.id }};
+    const chatMessages = document.getElementById('chatMessages');
+    const chatForm = document.getElementById('chatForm');
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const attachBtn = document.getElementById('attachBtn');
+    const fileUploadArea = document.getElementById('fileUploadArea');
+    const fileInput = document.getElementById('fileInput');
+    const selectedFilesDiv = document.getElementById('selectedFiles');
+    let isPolling = false;
+    let selectedFiles = [];
+
+    // File upload toggle
+    attachBtn.addEventListener('click', function() {
+        fileUploadArea.classList.toggle('active');
+        attachBtn.classList.toggle('active');
+    });
+
+    // Handle file selection
+    fileInput.addEventListener('change', function(e) {
+        const files = Array.from(e.target.files);
+        selectedFiles = selectedFiles.concat(files);
+        displaySelectedFiles();
+    });
+
+    function displaySelectedFiles() {
+        selectedFilesDiv.innerHTML = '';
+        selectedFiles.forEach((file, index) => {
+            const fileDiv = document.createElement('div');
+            fileDiv.className = 'selected-file';
+            
+            const icon = getFileIcon(file.name);
+            fileDiv.innerHTML = `
+                <i class="fas fa-${icon}"></i>
+                <span>${file.name} (${formatFileSize(file.size)})</span>
+                <i class="fas fa-times remove-file" onclick="removeFile(${index})"></i>
+            `;
+            selectedFilesDiv.appendChild(fileDiv);
+        });
+    }
+
+    function removeFile(index) {
+        selectedFiles.splice(index, 1);
+        displaySelectedFiles();
+    }
+
+    function getFileIcon(filename) {
+        const ext = filename.split('.').pop().toLowerCase();
+        const icons = {
+            'pdf': 'file-pdf',
+            'doc': 'file-word', 'docx': 'file-word',
+            'xls': 'file-excel', 'xlsx': 'file-excel',
+            'jpg': 'file-image', 'jpeg': 'file-image', 'png': 'file-image', 'gif': 'file-image',
+            'zip': 'file-archive', 'rar': 'file-archive',
+            'txt': 'file-alt'
+        };
+        return icons[ext] || 'file';
+    }
+
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    }
+
+    // Load messages
+    async function loadMessages() {
+        try {
+            const response = await fetch(`/api/lawyer-chat/${appointmentId}/messages`);
+            const messages = await response.json();
+            
+            // Check if user is at bottom before updating
+            const isAtBottom = chatMessages.scrollHeight - chatMessages.clientHeight <= chatMessages.scrollTop + 50;
+            
+            chatMessages.innerHTML = '';
+            messages.forEach(msg => {
+                addMessage(msg.message, msg.sender_type, msg.created_at, msg.attachments);
+            });
+            
+            // Only scroll to bottom if user was already there
+            if (isAtBottom) {
+                scrollToBottom();
+            }
+        } catch (error) {
+            console.error('Error loading messages:', error);
+        }
+    }
+
+    // Add message to chat
+    function addMessage(text, senderType, timestamp, attachments = []) {
+        const messageDiv = document.createElement('div');
+        const isSent = senderType === 'lawyer';
+        messageDiv.className = `message ${isSent ? 'message-sent' : 'message-received'}`;
+        
+        let attachmentsHTML = '';
+        if (attachments && attachments.length > 0) {
+            attachmentsHTML = '<div class="attachments">';
+            attachments.forEach(att => {
+                const icon = getFileIcon(att.original_filename);
+                if (att.file_type === 'image') {
+                    attachmentsHTML += `
+                        <div class="attachment" onclick="window.open('/api/download/${att.filename}', '_blank')">
+                            <img src="/static/uploads/${att.filename}" alt="${att.original_filename}" style="max-width: 200px; border-radius: 8px;">
+                        </div>
+                    `;
+                } else {
+                    attachmentsHTML += `
+                        <div class="attachment" onclick="window.open('/api/download/${att.filename}', '_blank')">
+                            <div class="attachment-icon">
+                                <i class="fas fa-${icon}"></i>
+                            </div>
+                            <div class="attachment-info">
+                                <div class="attachment-name">${att.original_filename}</div>
+                                <div class="attachment-size">${formatFileSize(att.file_size)}</div>
+                            </div>
+                            <i class="fas fa-download"></i>
+                        </div>
+                    `;
+                }
+            });
+            attachmentsHTML += '</div>';
+        }
+        
+        messageDiv.innerHTML = `
+            <div class="message-content">
+                <div class="message-sender">
+                    <i class="fas fa-${isSent ? 'user-tie' : 'user'}"></i>
+                    ${isSent ? 'You' : '{{ user.username }}'}
+                </div>
+                <div class="message-text">${text}</div>
+                ${attachmentsHTML}
+                <div class="message-time">${new Date(timestamp).toLocaleString()}</div>
+            </div>
+        `;
+        
+        chatMessages.appendChild(messageDiv);
+    }
+
+    // Send message
+    chatForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const message = messageInput.value.trim();
+        if (!message && selectedFiles.length === 0) return;
+
+        const formData = new FormData();
+        formData.append('message', message || '(file attachment)');
+        
+        // Add files
+        selectedFiles.forEach(file => {
+            formData.append('files[]', file);
+        });
+
+        messageInput.value = '';
+        sendBtn.disabled = true;
+
+        try {
+            const response = await fetch(`/api/lawyer-chat/${appointmentId}/send`, {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                addMessage(data.message.message, data.message.sender_type, data.message.created_at, data.message.attachments);
+                scrollToBottom();
+                
+                // Clear selected files
+                selectedFiles = [];
+                selectedFilesDiv.innerHTML = '';
+                fileInput.value = '';
+                fileUploadArea.classList.remove('active');
+                attachBtn.classList.remove('active');
+            }
+            
+        } catch (error) {
+            console.error('Error:', error);
+        } finally {
+            sendBtn.disabled = false;
+            messageInput.focus();
+        }
+    });
+
+    function scrollToBottom() {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Auto-resize textarea
+    messageInput.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+    });
+
+    // Poll for new messages
+    function startPolling() {
+        if (!isPolling) {
+            isPolling = true;
+            setInterval(loadMessages, 3000); // Poll every 3 seconds
+        }
+    }
+
+    // Load messages on page load
+    loadMessages();
+    startPolling();
+</script>
+{% endblock %}
