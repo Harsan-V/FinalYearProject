@@ -34,3 +34,10 @@ Legal_assistant_v2/
 ├── templates/
 ├── static/
 └── other project files
+
+## Project Output :
+
+<img width="1280" height="729" alt="WhatsApp Image 2026-05-27 at 6 24 52 PM (2)" src="https://github.com/user-attachments/assets/797e0171-62e3-4825-8cec-f9198f905271" />
+
+<img width="1280" height="731" alt="WhatsApp Image 2026-05-27 at 6 24 52 PM (1)" src="https://github.com/user-attachments/assets/2e05719c-45d8-45de-aa33-a38ccd9ccfd4" />
+
