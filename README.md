@@ -21,7 +21,6 @@ Legal Assistant V2 is an AI-powered legal support application designed to help u
 - Groq API / LLM integration
 - Git and GitHub for version control
 
-Update this section based on the exact tools used in your project.
 
 ## Project Output :
 
